@@ -28,4 +28,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    @ExceptionHandler(ResourceExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceExistsException(ResourceExistsException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Resource Exists");
+        response.put("errors", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
 }
