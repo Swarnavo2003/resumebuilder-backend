@@ -22,12 +22,15 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        log.info("Inside AuthController - register(): {}", request);
         AuthResponse response = authService.register(request);
+        log.info("Response from service: {}", response);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        log.info("Inside AuthController - verifyEmail(): {}", token);
         authService.verifyEmail(token);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Email verified successfully!"));
     }
