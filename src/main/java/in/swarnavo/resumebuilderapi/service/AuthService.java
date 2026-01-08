@@ -41,6 +41,20 @@ public class AuthService {
         return toResponse(newUser);
     }
 
+    public void verifyEmail(String token) {
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired verification token"));
+
+        if(user.getVerificationExpires() != null && user.getVerificationExpires().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Verification Token had expired. Please request a new one");
+        }
+
+        user.setEmailVerified(true);
+        user.setVerificationToken(null);
+        user.setVerificationExpires(null);
+        userRepository.save(user);
+    }
+
     private void sendVerificationEmail(User newUser) {
         try {
             String link = appBaseUrl+"/api/auth/verify-email?token="+newUser.getVerificationToken();
