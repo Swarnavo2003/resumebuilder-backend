@@ -3,6 +3,7 @@ package in.swarnavo.resumebuilderapi.controller;
 import in.swarnavo.resumebuilderapi.dto.AuthResponse;
 import in.swarnavo.resumebuilderapi.dto.RegisterRequest;
 import in.swarnavo.resumebuilderapi.service.AuthService;
+import in.swarnavo.resumebuilderapi.util.AppConstants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +16,12 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/auth")
+@RequestMapping(AppConstants.AUTH_CONTROLLER)
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
+    @PostMapping(AppConstants.REGISTER)
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         log.info("Inside AuthController - register(): {}", request);
         AuthResponse response = authService.register(request);
@@ -28,7 +29,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/verify-email")
+    @GetMapping(AppConstants.VERIFY_EMAIL)
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         log.info("Inside AuthController - verifyEmail(): {}", token);
         authService.verifyEmail(token);
