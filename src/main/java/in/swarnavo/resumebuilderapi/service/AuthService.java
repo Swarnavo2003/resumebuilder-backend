@@ -7,6 +7,7 @@ import in.swarnavo.resumebuilderapi.models.User;
 import in.swarnavo.resumebuilderapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,11 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
+    @Value("${app.base.url}")
+    private String appBaseUrl;
+
+    private final EmailService emailService;
+
     public AuthResponse register(RegisterRequest request) {
         log.info("Inside AuthService: register() {} ", request);
 
@@ -30,9 +36,42 @@ public class AuthService {
 
         newUser = userRepository.save(newUser);
 
-        // TODO: send verification email
+        sendVerificationEmail(newUser);
 
         return toResponse(newUser);
+    }
+
+    private void sendVerificationEmail(User newUser) {
+        try {
+            String link = appBaseUrl+"/api/auth/verify-email?token="+newUser.getVerificationToken();
+
+            String html = """
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 5px;">
+                    <h2 style="color: #333;">Verify Your Email</h2>
+                    <p style="color: #666; line-height: 1.6;">
+                        Thank you for registering! Please click the button below to verify your email address.
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="%s" 
+                           style="background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                            Verify Email
+                        </a>
+                    </div>
+                    <p style="color: #999; font-size: 12px;">
+                        This link will expire in 24 hours. If you didn't create an account, please ignore this email.
+                    </p>
+                </div>
+            </body>
+            </html>
+            """.formatted(link);
+
+            emailService.sendHtmlEmail(newUser.getEmail(), "Verify your email", html);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send verification email: " + e.getMessage());
+        }
     }
 
     private AuthResponse toResponse(User newUser) {
