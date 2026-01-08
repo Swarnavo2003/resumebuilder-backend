@@ -42,6 +42,8 @@ public class AuthService {
                 .profileImageUrl(newUser.getProfileImageUrl())
                 .subscriptionPlan(newUser.getSubscriptionPlan())
                 .emailVerified(newUser.isEmailVerified())
+                .createdAt(newUser.getCreatedAt())
+                .updatedAt(newUser.getUpdatedAt())
                 .build();
     }
 
