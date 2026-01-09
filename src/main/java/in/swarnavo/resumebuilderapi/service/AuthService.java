@@ -105,6 +105,10 @@ public class AuthService {
             throw new UsernameNotFoundException("Invalid email or password");
         }
 
+        if(existingUser.isEmailVerified()) {
+            throw new RuntimeException("Please verify your email before logging in");
+        }
+
         String token = "jwtToken";
 
         AuthResponse response = toResponse(existingUser);
