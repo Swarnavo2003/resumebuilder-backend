@@ -1,6 +1,7 @@
 package in.swarnavo.resumebuilderapi.controller;
 
 import in.swarnavo.resumebuilderapi.dto.AuthResponse;
+import in.swarnavo.resumebuilderapi.dto.LoginRequest;
 import in.swarnavo.resumebuilderapi.dto.RegisterRequest;
 import in.swarnavo.resumebuilderapi.service.AuthService;
 import in.swarnavo.resumebuilderapi.service.FileUploadService;
@@ -46,5 +47,12 @@ public class AuthController {
         log.info("Inside AuthController - uploadImage()");
         Map<String, String> response =  fileUploadService.uploadSingleImage(file);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(AppConstants.LOGIN)
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        log.info("Inside AuthController - login(): {}", request);
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

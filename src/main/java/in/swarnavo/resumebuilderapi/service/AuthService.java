@@ -1,6 +1,7 @@
 package in.swarnavo.resumebuilderapi.service;
 
 import in.swarnavo.resumebuilderapi.dto.AuthResponse;
+import in.swarnavo.resumebuilderapi.dto.LoginRequest;
 import in.swarnavo.resumebuilderapi.dto.RegisterRequest;
 import in.swarnavo.resumebuilderapi.exception.ResourceExistsException;
 import in.swarnavo.resumebuilderapi.models.User;
@@ -8,6 +9,7 @@ import in.swarnavo.resumebuilderapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -92,6 +94,23 @@ public class AuthService {
             log.error("Exception occured at sendVerificationEmail(): {}", e.getMessage());
             throw new RuntimeException("Failed to send verification email: " + e.getMessage());
         }
+    }
+
+    public AuthResponse login(LoginRequest request) {
+        log.info("Inside AuthService: login() {} ", request);
+        User existingUser = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
+
+        if(passwordEncoder.matches(request.getPassword(), existingUser.getPassword())) {
+            throw new UsernameNotFoundException("Invalid email or password");
+        }
+
+        String token = "jwtToken";
+
+        AuthResponse response = toResponse(existingUser);
+        response.setToken(token);
+
+        return response;
     }
 
     private AuthResponse toResponse(User newUser) {
